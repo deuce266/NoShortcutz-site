@@ -14,7 +14,7 @@ export async function POST(req) {
 
   try {
     await resend.emails.send({
-      from: 'NoShortCutz <onboarding@resend.dev>',
+      from: 'NoShortCutz <hello@noshortcutz.com>',
       to: email,
       subject: 'Issue 01: Emotion & Threat Detection (+ Scheffler at Valhalla)',
       html: `
