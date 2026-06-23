@@ -3,23 +3,20 @@ import { NextResponse } from 'next/server'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const supabaseUrl = process.env.SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_KEY
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-const PDF_LINK = 'https://drive.google.com/file/d/1YIXTWqdW4mGGmFCSvUubjGaa6jwzvRP1/view?usp=sharing'
-const ISSUE_TITLE = 'Issue 01: Emotion & Threat Detection (+ Scheffler at Valhalla)'
+const PDF_LINK = process.env.MONTHLY_PDF_LINK || 'https://drive.google.com/file/d/1YIXTWqdW4mGGmFCSvUubjGaa6jwzvRP1/view?usp=sharing'
+const ISSUE_TITLE = process.env.MONTHLY_ISSUE_TITLE || 'Issue 01: Emotion & Threat Detection (+ Scheffler at Valhalla)'
 
-async function saveEmail(email) {
-  const res = await fetch(`${supabaseUrl}/rest/v1/subscribers`, {
-    method: 'POST',
+async function getAllSubscribers() {
+  const res = await fetch(`${supabaseUrl}/rest/v1/subscribers?select=email`, {
     headers: {
-      'apikey': supabaseKey,
-      'Authorization': `Bearer ${supabaseKey}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal'
-    },
-    body: JSON.stringify({ email })
+      'apikey': supabaseServiceRoleKey,
+      'Authorization': `Bearer ${supabaseServiceRoleKey}`,
+    }
   })
-  return res.ok
+  const data = await res.json()
+  return Array.isArray(data) ? data : []
 }
 
 function getEmailHtml(pdfLink) {
@@ -32,22 +29,16 @@ function getEmailHtml(pdfLink) {
       </h1>
 
       <p style="font-size:16px;line-height:1.8;color:#ccc;margin-bottom:24px;">
-        You signed up. That already puts you ahead of most athletes who never think about this stuff.
+        Your monthly breakdown is ready.
       </p>
 
       <p style="font-size:16px;line-height:1.8;color:#ccc;margin-bottom:32px;">
-        Issue 01 breaks down how your brain processes pressure — what's happening when your body tightens up,
-        your vision narrows, and your instincts either fire right or completely fail you.
-        We use Scottie Scheffler at Valhalla as the case study.
+        One brain system. One athlete. One tool. Every month.
       </p>
 
       <a href="${pdfLink}" style="display:inline-block;background:#ffffff;color:#0a0a0a;text-decoration:none;padding:16px 32px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:4px;margin-bottom:40px;">
-        Read Issue →
+        Read This Month's Issue →
       </a>
-
-      <p style="font-size:14px;line-height:1.8;color:#666;margin-bottom:8px;">
-        Next issue drops first of the month.
-      </p>
 
       <hr style="border:none;border-top:1px solid #222;margin:32px 0;" />
 
@@ -59,24 +50,34 @@ function getEmailHtml(pdfLink) {
 }
 
 export async function POST(req) {
-  const { email } = await req.json()
+  const authHeader = req.headers.get('authorization')
+  const expectedSecret = process.env.CRON_SECRET
 
-  if (!email || !email.includes('@')) {
-    return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 })
+  if (authHeader !== `Bearer ${expectedSecret}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
-    await saveEmail(email)
+    const subscribers = await getAllSubscribers()
 
-    await resend.emails.send({
+    if (subscribers.length === 0) {
+      return NextResponse.json({ message: 'No subscribers to send to' })
+    }
+
+    const emails = subscribers.map(sub => ({
       from: 'NoShortCutz <hello@noshortcutz.com>',
-      to: email,
+      to: sub.email,
       subject: ISSUE_TITLE,
       html: getEmailHtml(PDF_LINK),
-    })
+    }))
 
-    return NextResponse.json({ success: true })
-  } catch {
-    return NextResponse.json({ error: 'Failed to send email. Please try again.' }, { status: 500 })
+    for (let i = 0; i < emails.length; i += 100) {
+      const batch = emails.slice(i, i + 100)
+      await resend.batch.send(batch)
+    }
+
+    return NextResponse.json({ success: true, sent: emails.length })
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
