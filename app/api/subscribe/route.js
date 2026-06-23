@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 const resend = new Resend(process.env.RESEND_API_KEY)
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
 const PDF_LINK = 'https://drive.google.com/file/d/1YIXTWqdW4mGGmFCSvUubjGaa6jwzvRP1/view?usp=sharing'
