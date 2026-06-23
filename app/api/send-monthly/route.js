@@ -1,22 +1,21 @@
 import { Resend } from 'resend'
+import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const supabaseUrl = process.env.SUPABASE_URL
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+)
 
 const PDF_LINK = process.env.MONTHLY_PDF_LINK || 'https://drive.google.com/file/d/1YIXTWqdW4mGGmFCSvUubjGaa6jwzvRP1/view?usp=sharing'
 const ISSUE_TITLE = process.env.MONTHLY_ISSUE_TITLE || 'Issue 01: Emotion & Threat Detection (+ Scheffler at Valhalla)'
 
 async function getAllSubscribers() {
-  const res = await fetch(`${supabaseUrl}/rest/v1/subscribers?select=email`, {
-    headers: {
-      'apikey': supabaseServiceRoleKey,
-      'Authorization': `Bearer ${supabaseServiceRoleKey}`,
-    }
-  })
-  const data = await res.json()
-  return Array.isArray(data) ? data : []
+  const { data, error } = await supabase
+    .from('subscribers')
+    .select('email')
+  return error ? [] : (data || [])
 }
 
 function getEmailHtml(pdfLink) {

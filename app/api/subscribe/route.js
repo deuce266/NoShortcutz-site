@@ -1,25 +1,21 @@
 import { Resend } from 'resend'
+import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const supabaseUrl = process.env.SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_KEY
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+)
 
 const PDF_LINK = 'https://drive.google.com/file/d/1YIXTWqdW4mGGmFCSvUubjGaa6jwzvRP1/view?usp=sharing'
 const ISSUE_TITLE = 'Issue 01: Emotion & Threat Detection (+ Scheffler at Valhalla)'
 
 async function saveEmail(email) {
-  const res = await fetch(`${supabaseUrl}/rest/v1/subscribers`, {
-    method: 'POST',
-    headers: {
-      'apikey': supabaseKey,
-      'Authorization': `Bearer ${supabaseKey}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal'
-    },
-    body: JSON.stringify({ email })
-  })
-  return res.ok
+  const { error } = await supabase
+    .from('subscribers')
+    .insert([{ email }])
+  return !error
 }
 
 function getEmailHtml(pdfLink) {
