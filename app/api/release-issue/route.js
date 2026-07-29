@@ -8,20 +8,18 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-async function saveEmail(email) {
-  const { error } = await supabase
+async function getAllSubscribers() {
+  const { data, error } = await supabase
     .from('subscribers')
-    .insert([{ email }])
-  return !error
+    .select('email')
+  return error ? [] : (data || [])
 }
 
-async function getLatestReleasedIssue() {
+async function getIssueByNumber(issueNumber) {
   const { data, error } = await supabase
     .from('issues')
     .select('*')
-    .lte('released_at', new Date().toISOString())
-    .order('issue_number', { ascending: false })
-    .limit(1)
+    .eq('issue_number', issueNumber)
     .single()
   return error ? null : data
 }
@@ -35,21 +33,13 @@ function getEmailHtml(issue) {
         ${issue.title}
       </h1>
 
-      <p style="font-size:16px;line-height:1.8;color:#ccc;margin-bottom:24px;">
-        You signed up. That already puts you ahead of most athletes who never think about this stuff.
-      </p>
-
       <p style="font-size:16px;line-height:1.8;color:#ccc;margin-bottom:32px;">
-        ${issue.description || 'Dive in and see what you\'ve been missing.'}
+        ${issue.description || 'Your monthly breakdown is ready.'}
       </p>
 
       <a href="${issue.pdf_link}" style="display:inline-block;background:#ffffff;color:#0a0a0a;text-decoration:none;padding:16px 32px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:4px;margin-bottom:40px;">
-        Read Issue →
+        Read This Issue →
       </a>
-
-      <p style="font-size:14px;line-height:1.8;color:#666;margin-bottom:8px;">
-        New issues drop on the 1st of the month.
-      </p>
 
       <hr style="border:none;border-top:1px solid #222;margin:32px 0;" />
 
@@ -61,30 +51,47 @@ function getEmailHtml(issue) {
 }
 
 export async function POST(req) {
-  const { email } = await req.json()
+  const authHeader = req.headers.get('authorization')
+  const expectedSecret = process.env.CRON_SECRET
 
-  if (!email || !email.includes('@')) {
-    return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 })
+  if (authHeader !== `Bearer ${expectedSecret}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
-    await saveEmail(email)
+    const { searchParams } = new URL(req.url)
+    const issueNumber = searchParams.get('issue_number')
 
-    const issue = await getLatestReleasedIssue()
-
-    if (!issue) {
-      return NextResponse.json({ success: true, message: 'Subscribed but no issues released yet' })
+    if (!issueNumber) {
+      return NextResponse.json({ error: 'issue_number query parameter is required' }, { status: 400 })
     }
 
-    await resend.emails.send({
+    const issue = await getIssueByNumber(parseInt(issueNumber))
+
+    if (!issue) {
+      return NextResponse.json({ error: 'Issue not found' }, { status: 404 })
+    }
+
+    const subscribers = await getAllSubscribers()
+
+    if (subscribers.length === 0) {
+      return NextResponse.json({ message: 'No subscribers to send to' })
+    }
+
+    const emails = subscribers.map(sub => ({
       from: 'NoShortCutz <hello@noshortcutz.com>',
-      to: email,
+      to: sub.email,
       subject: issue.title,
       html: getEmailHtml(issue),
-    })
+    }))
 
-    return NextResponse.json({ success: true })
+    for (let i = 0; i < emails.length; i += 100) {
+      const batch = emails.slice(i, i + 100)
+      await resend.batch.send(batch)
+    }
+
+    return NextResponse.json({ success: true, sent: emails.length })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to subscribe. Please try again.' }, { status: 500 })
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
