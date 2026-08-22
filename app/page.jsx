@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 
 export default function Home() {
   const [email, setEmail] = useState('')
@@ -79,7 +80,13 @@ export default function Home() {
 
         <p className="fine-print">Free. One email a month. Unsubscribe anytime.</p>
 
-        <p className="footer">NoShortCutz &middot; Pressure-Tested &middot; Built for competitive athletes</p>
+        <p className="footer">
+          NoShortCutz &middot; Pressure-Tested &middot; Built for competitive athletes
+          <br />
+          <Link href="/contact" style={{ color: '#888', textDecoration: 'none', borderBottom: '1px solid #444', fontSize: '12px' }}>
+            Get in touch
+          </Link>
+        </p>
       </div>
     </main>
   )
