@@ -80,12 +80,22 @@ export default function Home() {
 
         <p className="fine-print">Free. One email a month. Unsubscribe anytime.</p>
 
+        <div style={{ marginTop: '40px', marginBottom: '40px' }}>
+          <Link href="/contact" style={{
+            display: 'inline-block',
+            color: '#fff',
+            textDecoration: 'none',
+            borderBottom: '2px solid #fff',
+            fontSize: '15px',
+            fontFamily: 'Arial, sans-serif',
+            paddingBottom: '4px'
+          }}>
+            Have questions? Get in touch
+          </Link>
+        </div>
+
         <p className="footer">
           NoShortCutz &middot; Pressure-Tested &middot; Built for competitive athletes
-          <br />
-          <Link href="/contact" style={{ color: '#888', textDecoration: 'none', borderBottom: '1px solid #444', fontSize: '12px' }}>
-            Get in touch
-          </Link>
         </p>
       </div>
     </main>
