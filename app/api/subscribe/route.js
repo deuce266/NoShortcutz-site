@@ -43,6 +43,10 @@ function getEmailHtml(issue) {
         ${issue.description || 'Dive in and see what you\'ve been missing.'}
       </p>
 
+      <p style="font-size:16px;line-height:1.8;color:#ccc;margin-bottom:32px;">
+  You also have free access to the Brain Performance app suite — Brain Map, Pre-Game Protocol, and Pressure Simulator. Visit <a href="https://noshortcutz.com/members" style="color:#c0392b;">noshortcutz.com/members</a> and enter this email address to unlock them instantly.
+</p>
+
       <a href="${issue.pdf_link}" style="display:inline-block;background:#ffffff;color:#0a0a0a;text-decoration:none;padding:16px 32px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:4px;margin-bottom:40px;">
         Read Issue →
       </a>
