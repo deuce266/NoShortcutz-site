@@ -29,19 +29,25 @@ async function getAllSubscribers() {
 function getEmailHtml(issue) {
   return `
     <div style="background:#0a0a0a;color:#f0f0f0;font-family:Georgia,serif;max-width:600px;margin:0 auto;padding:40px 32px;">
-      <p style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#888;margin-bottom:32px;">NoShortcutz</p>
-      <h1 style="font-size:32px;font-weight:700;line-height:1.2;color:#fff;margin-bottom:24px;">
-        ${issue.title}
+      <p style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#888;margin-bottom:32px;">NoShortcutz · The Pressure-Tested Monthly</p>
+      <h1 style="font-size:32px;font-weight:700;line-height:1.2;color:#fff;margin-bottom:8px;">
+        Issue ${String(issue.issue_number).padStart(2,'0')} is live.
       </h1>
+      <h2 style="font-size:20px;font-weight:400;font-style:italic;color:#c0392b;margin-bottom:24px;line-height:1.3;">
+        ${issue.title}
+      </h2>
       <p style="font-size:16px;line-height:1.8;color:#ccc;margin-bottom:24px;">
-        Your monthly breakdown is ready.
+        ${issue.description || 'Your monthly breakdown is ready.'}
       </p>
       <p style="font-size:16px;line-height:1.8;color:#ccc;margin-bottom:32px;">
-        ${issue.description || 'One brain system. One athlete. One tool. Every month.'}
+        Read it in the members area — along with every previous issue and the free Brain Performance app suite.
       </p>
-      <a href="${issue.pdf_link}" style="display:inline-block;background:#ffffff;color:#0a0a0a;text-decoration:none;padding:16px 32px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:4px;margin-bottom:40px;">
-        Read This Month's Issue →
+      <a href="https://noshortcutz.com/members" style="display:inline-block;background:#c0392b;color:#fff;text-decoration:none;padding:16px 32px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:4px;margin-bottom:40px;">
+        Read Issue ${String(issue.issue_number).padStart(2,'0')} →
       </a>
+      <p style="font-size:13px;line-height:1.8;color:#555;margin-bottom:8px;">
+        First time visiting? Enter your email on the members page to unlock instant access.
+      </p>
       <hr style="border:none;border-top:1px solid #222;margin:32px 0;" />
       <p style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#444;">
         NoShortcutz &middot; Pressure-Tested &middot; Built for competitive athletes
@@ -70,7 +76,7 @@ export async function POST(req) {
     const emails = subscribers.map(sub => ({
       from: 'NoShortcutz <hello@noshortcutz.com>',
       to: sub.email,
-      subject: issue.title,
+      subject: `Issue ${String(issue.issue_number).padStart(2,'0')} is live — ${issue.title}`,
       html: getEmailHtml(issue),
     }))
 
