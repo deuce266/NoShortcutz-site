@@ -26,6 +26,39 @@ async function getAllSubscribers() {
   return error ? [] : (data || [])
 }
 
+function getFooter() {
+  return `
+    <hr style="border:none;border-top:1px solid #222;margin:40px 0 28px;" />
+    <table style="width:100%;border-collapse:collapse;">
+      <tr>
+        <td style="padding-bottom:12px;">
+          <a href="https://noshortcutz.com" style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:#c0392b;text-decoration:none;">NoShortcutz</a>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding-bottom:12px;">
+          <p style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#444;margin:0;">Pressure-Tested &middot; Built for competitive athletes</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding-bottom:16px;">
+          <a href="https://noshortcutz.com" style="font-family:Arial,sans-serif;font-size:11px;color:#555;text-decoration:none;">noshortcutz.com</a>
+          &nbsp;&nbsp;&middot;&nbsp;&nbsp;
+          <a href="https://instagram.com/noshortcutz" style="font-family:Arial,sans-serif;font-size:11px;color:#555;text-decoration:none;">@noshortcutz</a>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p style="font-family:Arial,sans-serif;font-size:10px;color:#333;margin:0;line-height:1.6;">
+            You're receiving this because you signed up at noshortcutz.com.
+            &nbsp;<a href="https://noshortcutz.com" style="color:#555;text-decoration:underline;">Unsubscribe</a>
+          </p>
+        </td>
+      </tr>
+    </table>
+  `
+}
+
 function getEmailHtml(issue) {
   return `
     <div style="background:#0a0a0a;color:#f0f0f0;font-family:Georgia,serif;max-width:600px;margin:0 auto;padding:40px 32px;">
@@ -45,13 +78,10 @@ function getEmailHtml(issue) {
       <a href="https://noshortcutz.com/members" style="display:inline-block;background:#c0392b;color:#fff;text-decoration:none;padding:16px 32px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:4px;margin-bottom:40px;">
         Read Issue ${String(issue.issue_number).padStart(2,'0')} →
       </a>
-      <p style="font-size:13px;line-height:1.8;color:#555;margin-bottom:8px;">
-        First time visiting? Enter your email on the members page to unlock instant access.
+      <p style="font-size:13px;line-height:1.8;color:#555;margin-bottom:0;">
+        First time visiting? Enter your email on the members page to unlock everything instantly.
       </p>
-      <hr style="border:none;border-top:1px solid #222;margin:32px 0;" />
-      <p style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#444;">
-        NoShortcutz &middot; Pressure-Tested &middot; Built for competitive athletes
-      </p>
+      ${getFooter()}
     </div>
   `
 }
