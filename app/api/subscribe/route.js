@@ -26,6 +26,39 @@ async function getLatestReleasedIssue() {
   return error ? null : data
 }
 
+function getFooter() {
+  return `
+    <hr style="border:none;border-top:1px solid #222;margin:40px 0 28px;" />
+    <table style="width:100%;border-collapse:collapse;">
+      <tr>
+        <td style="padding-bottom:12px;">
+          <a href="https://noshortcutz.com" style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:#c0392b;text-decoration:none;">NoShortcutz</a>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding-bottom:12px;">
+          <p style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#444;margin:0;">Pressure-Tested &middot; Built for competitive athletes</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding-bottom:16px;">
+          <a href="https://noshortcutz.com" style="font-family:Arial,sans-serif;font-size:11px;color:#555;text-decoration:none;">noshortcutz.com</a>
+          &nbsp;&nbsp;&middot;&nbsp;&nbsp;
+          <a href="https://instagram.com/noshortcutz" style="font-family:Arial,sans-serif;font-size:11px;color:#555;text-decoration:none;">@noshortcutz</a>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p style="font-family:Arial,sans-serif;font-size:10px;color:#333;margin:0;line-height:1.6;">
+            You're receiving this because you signed up at noshortcutz.com.
+            &nbsp;<a href="https://noshortcutz.com" style="color:#555;text-decoration:underline;">Unsubscribe</a>
+          </p>
+        </td>
+      </tr>
+    </table>
+  `
+}
+
 function getEmailHtml(issue) {
   return `
     <div style="background:#0a0a0a;color:#f0f0f0;font-family:Georgia,serif;max-width:600px;margin:0 auto;padding:40px 32px;">
@@ -37,21 +70,18 @@ function getEmailHtml(issue) {
         You signed up. That already puts you ahead of most athletes who never think about this stuff.
       </p>
       <p style="font-size:16px;line-height:1.8;color:#ccc;margin-bottom:16px;">
-        Your first issue is waiting in the members area — <strong style="color:#fff;">${issue ? issue.title : 'The Pressure-Tested Monthly'}</strong>. ${issue ? (issue.description || '') : ''}
+        Your latest issue is waiting — <strong style="color:#fff;">${issue ? issue.title : 'The Pressure-Tested Monthly'}</strong>. ${issue ? (issue.description || '') : ''}
       </p>
       <p style="font-size:16px;line-height:1.8;color:#ccc;margin-bottom:32px;">
-        You also have free access to the Brain Performance app suite — Brain Map, Pre-Game Protocol, and the Pressure Simulator. Everything is in the members area.
+        You also have free access to the Brain Performance app suite — Brain Map, Pre-Game Protocol, and the Pressure Simulator with 105 real sports scenarios.
       </p>
       <a href="https://noshortcutz.com/members" style="display:inline-block;background:#c0392b;color:#fff;text-decoration:none;padding:16px 32px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:4px;margin-bottom:40px;">
         Go to Members Area →
       </a>
-      <p style="font-size:13px;line-height:1.8;color:#555;margin-bottom:8px;">
+      <p style="font-size:13px;line-height:1.8;color:#555;margin-bottom:0;">
         Enter your email on the members page to unlock everything instantly. New issues drop on the 1st of every month.
       </p>
-      <hr style="border:none;border-top:1px solid #222;margin:32px 0;" />
-      <p style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#444;">
-        NoShortcutz &middot; Pressure-Tested &middot; Built for competitive athletes
-      </p>
+      ${getFooter()}
     </div>
   `
 }
